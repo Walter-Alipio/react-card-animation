@@ -2,6 +2,7 @@ import { useScrollAnimation } from './useScrollAnimation';
 import { useForm, SubmitHandler } from "react-hook-form"
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod';
+import { useState } from 'react';
 
 const formConsultSchema = z.object({
     cpfCnpj: z
@@ -30,17 +31,61 @@ type formConsult = z.infer<typeof formConsultSchema>;
 const DaisyCard = () => {
     const { ref, springs, AnimatedDiv } = useScrollAnimation();
 
+    const [apiState, setApiState] = useState<
+        'idle' | 'loading' | 'success' | 'error' | 'not_found'
+    >('idle');
+    const [apiError, setApiError] = useState<string | null>(null);
+
     const {
         register,
         handleSubmit,
-        watch,
         formState: { errors },
-    } = useForm<formConsult>({ resolver: zodResolver(formConsultSchema) })
+        reset,
+    } = useForm<formConsult>({ resolver: zodResolver(formConsultSchema) });
 
-    const onSubmit: SubmitHandler<formConsult> = (data) => { console.log(data) }
+    const onSubmit: SubmitHandler<formConsult> = async (data) => {
+        try {
+            setApiState('loading');
 
-    console.log(watch("cpfCnpj")) // watch input value by passing the name of it
-    console.log(watch("tmUso")) // watch input value by passing the name of it
+            await new Promise(resolve => setTimeout(resolve, 3000));
+
+            setApiState('not_found');
+            setApiError(`Nenhum acordo encontrado para ${data.cpfCnpj}`);
+            // // Simulate API call (replace with your actual API call)
+            // const response = await fetch('/your-api-endpoint', {
+            //     method: 'POST',
+            //     body: JSON.stringify({
+            //         cpfCnpj: data.cpfCnpj.replace(/\D/g, '')
+            //     }),
+            //     headers: {
+            //         'Content-Type': 'application/json'
+            //     }
+            // });
+
+            // const result = await response.json();
+
+            // if (!response.ok) {
+            //     if (response.status === 404) {
+            //         setApiState('not_found');
+            //         setApiError(`Nenhum acordo encontrado para ${data.cpfCnpj}`);
+            //     } else {
+            //         throw new Error('API Error');
+            //     }
+            // } else {
+            //     setApiState('success');
+            //     // Handle successful response here
+            // }
+        } catch (error) {
+            setApiState('error');
+            setApiError('Ops, parece que ocorreu um erro interno, tente novamente mais tarde');
+        }
+    };
+
+    const resetForm = () => {
+        reset();
+        setApiState('idle');
+        setApiError(null);
+    };
 
     const formatCpfCnpj = (value: string) => {
         const cleanedValue = value.replace(/\D/g, ''); // remove caracteres não numéricos
@@ -61,6 +106,41 @@ const DaisyCard = () => {
                 .replace(/(\d{4})(\d)/, '$1-$2');
         }
     };
+
+    // Render different states
+    if (apiState === 'loading') {
+        return (
+            <AnimatedDiv
+                className="bg-white dark:bg-gray-700 rounded-lg m-5 p-10 min-h-[45vh] w-sm md:w-md flex flex-col justify-center items-center"
+                {...({} as any)}
+            >
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mb-4"></div>
+                <p className="text-gray-600 dark:text-gray-50">Buscando informações...</p>
+            </AnimatedDiv>
+        );
+    }
+
+    if (apiState === 'not_found' || apiState === 'error') {
+        return (
+            <AnimatedDiv
+                {...({} as any)}
+                className="bg-white dark:bg-gray-700 rounded-lg m-5 p-10 min-h-[45vh] w-sm md:w-md flex flex-col justify-center">
+                <div className="text-center mb-6">
+                    <div className="text-red-500 text-5xl mb-3">⚠️</div>
+                    <h3 className="text-xl font-bold text-gray-700 dark:text-gray-50 mb-2">
+                        {apiState === 'not_found' ? 'Nenhum acordo encontrado' : 'Erro no servidor'}
+                    </h3>
+                    <p className="text-gray-600 dark:text-gray-50">{apiError}</p>
+                </div>
+                <button
+                    onClick={resetForm}
+                    className="bg-blue-700 text-white font-bold py-2 px-4 rounded w-full hover:cursor-pointer active:bg-blue-500"
+                >
+                    Tentar novamente
+                </button>
+            </AnimatedDiv>
+        );
+    }
 
     return (
         <AnimatedDiv
