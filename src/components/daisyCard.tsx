@@ -146,7 +146,7 @@ const DaisyCard = () => {
         <AnimatedDiv
             ref={ref}
             style={springs}
-            className="bg-white dark:bg-gray-700 rounded-lg m-5 p-10 min-h-[45vh] w-sm md:w-md flex flex-col justify-around"
+            className="bg-white dark:bg-gray-700 rounded-lg m-5 p-10 min-h-[45vh] w-sm md:w-md flex flex-col justify-around border-cyan-300"
             {...({} as any)}
         >
             <h6 className="font-bold text-4xl text-gray-700 dark:text-gray-50 font-sans">Consulte suas dívidas<br /> agora mesmo!</h6>
