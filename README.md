@@ -1,9 +1,9 @@
 # Testin animations and input validations
 
 ### installed dependencies
-- npm install -D @react-spring/web
-- npm install -D react-intersection-observer
-- npm install -D react-use-gesture @react-spring/web
-- npm install -D react-hook-form
-- npm install -D zod  
-- npm i -D @hookform/resolvers
+- npm install  @react-spring/web
+- npm install react-intersection-observer
+- npm install react-use-gesture @react-spring/web
+- npm install react-hook-form
+- npm install zod  
+- npm i  @hookform/resolvers
